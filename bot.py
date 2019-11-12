@@ -7,7 +7,6 @@ Usage:
 """
 import logging
 import bot_keyboards
-import requests
 import secret_settings
 from telegram import Update
 from telegram.ext import (CallbackContext)
@@ -54,12 +53,12 @@ def start(update: Update, context: CallbackContext):
         add_child(update, context, chat_id)
 
 
-def home_parent(update: Update, context: CallbackContext):
-    pass
+def home_parent(update: Update, chat_id, context: CallbackContext):
+    bot_keyboards.main_parent_keyboard(update, chat_id, context)
 
 
-def home_child(update: Update, context: CallbackContext):
-    pass
+def home_child(update: Update, context: CallbackContext, chat_id):
+    bot_keyboards.main_child_keyboard(update, chat_id, context)
 
 
 def add_child(update, context, chat_id):
@@ -74,46 +73,6 @@ def adding_child(update, context):
     context.bot.send_message(chat_id=chat_id, text=f"Send your child this link to join this bot: "
                                                    f"\n https://t.me/teachild_bot?start={child_name}-{str(chat_id)}")
     home_parent(update, context)
-
-
-def assign_task(update: Update, context: CallbackContext):
-    pass
-
-
-def get_report(update: Update, context: CallbackContext):
-    pass
-
-
-def start_ques1(update: Update, context: CallbackContext):
-    pass
-
-
-def get_answer(update: Update, context: CallbackContext):
-    pass
-
-
-def check_answer(update: Update, context: CallbackContext):
-    pass
-
-
-def next_task(update: Update, context: CallbackContext):
-    pass
-
-
-def done_task(update: Update, context: CallbackContext):
-    pass
-
-
-def generate_report(update: Update, context: CallbackContext):
-    pass
-
-
-def show_child_tasks(update, context):
-    pass
-
-
-def help(update: Update, context: CallbackContext):
-    pass
 
 
 def error(update, context):

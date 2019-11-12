@@ -1,4 +1,4 @@
-from bot import logger, error, start, adding_child
+from bot import logger, error, start, add_child, get_report, assign_task, adding_child
 import secret_settings
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters)
 
@@ -21,6 +21,21 @@ def main():
 
     echo_handler = MessageHandler(Filters.text, adding_child)
     dispatcher.add_handler(echo_handler)
+
+    add_child_handler = CommandHandler('add_child', add_child)
+    dispatcher.add_handler(add_child_handler)
+
+    assign_handler = CommandHandler('assign_task', assign_task)
+    dispatcher.add_handler(assign_handler)
+
+    report_handler = CommandHandler('get_report', get_report)
+    dispatcher.add_handler(report_handler)
+
+    start_task_handler = CommandHandler('start_task', start_ques1)
+    dispatcher.add_handler(start_task_handler)
+
+    show_task_handler = CommandHandler('show_task', show_child_tasks)
+    dispatcher.add_handler(show_task_handler)
 
     logger.info("* Start polling...")
     updater.start_polling()  # Starts polling in a background thread.
