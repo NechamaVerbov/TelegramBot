@@ -7,6 +7,7 @@ Usage:
 """
 import logging
 import bot_keyboards
+import re
 import secret_settings
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler)
 from telegram import Update
@@ -63,13 +64,32 @@ def adding_child(update, context, child_name):
     home_parent(update, chat_id, context)
 
 
+def assign_task(update: Update, context: CallbackContext):
+    bot_keyboards.choose_child_for_task(update, context, update.effective_chat.id)
+    # child_id = bot_keyboards.choose_child_for_task(update, chat_id, context)
+    # level_task = bot_keyboards.choose_level_task(update)
+    # model.set_task_for_child(child_id, level_task)
+    # context.bot.send_message(chat_id=child_id, text=f"Hi, you have a new assignment 😃")
+
+
+def CallbackQueryHandler_choose_child(update, context):
+    parent_id = update.effective_chat.id
+    child_id = update.callback_query.data
+    bot_keyboards.model.create_task_in_DB(child_id,parent_id)
+    bot_keyboards.choose_level_task(update,context)
+
+
+def CallbackQueryHandler_choose_level(update, context):
+    child_level = update.callback_query.data
+    bot_keyboards.model.level_task_in_DB(child_level)
+
 def respond(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
     text = update.message.text
     if text == 'Add child':
         add_child(update, context, chat_id)
     elif text == 'Assign task':
-        pass
+        assign_task(update, context)
     elif text == 'Get report':
         pass
     elif text == 'Start Task':
@@ -104,6 +124,10 @@ def main():
 
     echo_handler = MessageHandler(Filters.text, respond)
     dispatcher.add_handler(echo_handler)
+
+    dispatcher.add_handler(CallbackQueryHandler(CallbackQueryHandler_choose_child, pattern=re.compile(r'\d')))
+
+    dispatcher.add_handler(CallbackQueryHandler(CallbackQueryHandler_choose_level, pattern=re.compile(r'x\d+')))
 
     logger.info("* Start polling...")
     updater.start_polling()  # Starts polling in a background thread.

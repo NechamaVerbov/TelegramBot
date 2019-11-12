@@ -54,3 +54,17 @@ def add_child_to_db(context, name, p_id, chat_id):
 
 def child_name_to_parent(chat_id, child_name):
     parent_collection.update({'parent_id': chat_id}, {'$push': {'children_names': child_name}})
+
+
+def get_list_child_id(chat_id_parent):
+    return ['123','2']
+def get_list_child_name(chat_id_parent):
+    return ["a","b"]
+def create_task_in_DB(child_id,parent_id):
+    print("nice")
+    #בונה לי משימה חדשה בדטהבייס שלא נעשתה
+def level_task_in_DB(level):
+    print(level)
+def get_num_of_level():
+    # כמה רמות יש לי
+    return int(2)
