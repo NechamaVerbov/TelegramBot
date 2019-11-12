@@ -39,7 +39,7 @@ def add_parent_to_db(context, update, chat_id):
         'children names': []
     }
 
-    response = parent_collection.replace_one({'patent_id': chat_id}, p, upsert=True)
+    response = parent_collection.replace_one({'parent_id': chat_id}, p, upsert=True)
 
 
 def add_child_to_db(context, name, p_id, chat_id):
@@ -50,3 +50,7 @@ def add_child_to_db(context, name, p_id, chat_id):
         'tasks': {},  # a list of dictionaries
     }
     response = child_collection.replace_one({'child_id': chat_id}, c, upsert=True)
+
+
+def child_name_to_parent(chat_id, child_name):
+    parent_collection.update({'parent_id': chat_id}, {'$push': {'children_names': child_name}})

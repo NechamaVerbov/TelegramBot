@@ -10,7 +10,7 @@ import bot_keyboards
 import secret_settings
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler)
 from telegram import Update
-from model import add_parent_to_db, add_child_to_db
+from model import add_parent_to_db, add_child_to_db, child_name_to_parent
 from telegram.ext import (CallbackContext)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -57,7 +57,7 @@ def adding_child(update, context, child_name):
     chat_id = update.effective_chat.id
     logger.info(f"> Adding {child_name} to parent #{chat_id}")
 
-    #child_name_to_parent(chat_id,child_name)
+    child_name_to_parent(chat_id,child_name)
     context.bot.send_message(chat_id=chat_id, text=f"Send your child this link to join this bot: "
                                                    f"\n https://t.me/teachild_bot?start={child_name}-{str(chat_id)}")
     home_parent(update, chat_id, context)
