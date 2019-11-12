@@ -1,13 +1,17 @@
 import random
+import feedparser
 import dict_questions
 from pymongo.mongo_client import MongoClient
+from datetime import datetime
 
 client = MongoClient()
 db = client.get_database("Teachild")
 db.drop_collection('Parent')
 db.drop_collection('Child')
+db.drop_collection('Task')
 parent_collection = db.get_collection('Parent')
 child_collection = db.get_collection('Child')
+task_collection = db.get_collection('Task')
 
 '''
 #0-39
@@ -55,6 +59,27 @@ def add_child_to_db(name, p_id, chat_id):
     response = child_collection.replace_one({'child_id': chat_id}, c, upsert=True)
 
 
+def add_task_to_db(c_id, p_id, level, dictionary):
+    t = {
+        'child_id': c_id,
+        'parent_id': p_id,
+        'level': level,
+        'status': False,
+        'date': datetime.now(),
+        'task_dict': dictionary,
+        'data_time_start': datetime.datetime(),
+        'data_time_finishing': datetime.datetime(),
+        'current_task': 0
+    }
+    response = task_collection.insert_one(t)
+
+
+def get_date_task_send(task_id):
+    task = db.collection.find({'_id': task_id})
+    d = feedparser.parse(task['date'])
+    return d.strftime("%d/%m/%Y %H:%M:%S")
+
+
 def child_name_to_parent(chat_id, child_name):
     parent_collection.update({'parent_id': chat_id}, {'$push': {'children_names': child_name}})
 
@@ -79,11 +104,16 @@ def get_current_task(child_id):
     return child_collection.find({'child_id': child_id})[0]['current_task']
 
 
-def create_task_in_DB(child_id,parent_id):
-    print("nice")
-    #בונה לי משימה חדשה בדטהבייס שלא נעשתה
-def level_task_in_DB(level):
-    print(level)
+def create_task_in_db(parent_id, child_id, level):
+    dictionary = send_task(level)
+    add_task_to_db(child_id, parent_id, level, dictionary)
+    print(child_id, level)
+
+
+def get_report(parent_id, child_id):
+    pass
+
+
 def get_num_of_level():
     # כמה רמות יש לי
     return int(2)

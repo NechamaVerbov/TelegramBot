@@ -9,8 +9,6 @@ import logging
 import bot_keyboards
 import re
 import secret_settings
-from io import BytesIO
-from PIL import Image
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler)
 from telegram import Update
 from model import add_parent_to_db, add_child_to_db, child_name_to_parent, is_parent, child_id_to_parent
@@ -20,8 +18,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-
-bot_users = dict()
 
 
 def get_info_from(key: str):
@@ -61,7 +57,7 @@ def adding_child(update, context, child_name):
     chat_id = update.effective_chat.id
     logger.info(f"> Adding {child_name} to parent #{chat_id}")
 
-    child_name_to_parent(chat_id,child_name)
+    child_name_to_parent(chat_id, child_name)
     context.bot.send_message(chat_id=chat_id, text=f"Send your child this link to join this bot: "
                                                    f"\n https://t.me/teachild_bot?start={child_name}-{str(chat_id)}")
     home_parent(update, chat_id, context)
@@ -69,10 +65,6 @@ def adding_child(update, context, child_name):
 
 def assign_task(update: Update, context: CallbackContext):
     bot_keyboards.choose_child_for_task(update, context, update.effective_chat.id)
-    # child_id = bot_keyboards.choose_child_for_task(update, chat_id, context)
-    # level_task = bot_keyboards.choose_level_task(update)
-    # model.set_task_for_child(child_id, level_task)
-    # context.bot.send_message(chat_id=child_id, text=f"Hi, you have a new assignment 😃")
 
 
 def start_task_one(update: Update, context: CallbackContext):
@@ -97,15 +89,16 @@ def next_task(update: Update, context: CallbackContext):
 
 def callback_query_handler_choose_child(update, context):
     parent_id = update.effective_chat.id
-    # child_id = update.callback_query.data
     context.user_data['choose_child'] = update.callback_query.data
-    # bot_keyboards.model.create_task_in_DB(child_id, parent_id)
     bot_keyboards.choose_level_task(update, context)
 
 
 def callback_query_handler_choose_level(update, context):
+    chat_id = update.effective_chat.id
     child_level = update.callback_query.data
-    bot_keyboards.model.create_task_in_DB(context.user_data['choose_child'], child_level.replace('x', ''))
+    bot_keyboards.model.create_task_in_db(chat_id, context.user_data['choose_child'], child_level.replace('x', ''))
+    context.bot.send_message(chat_id=chat_id, text="task send")
+    context.bot.send_message(chat_id=context.user_data['choose_child'], text=f"Hi, you have a new assignment 😃")
 
 
 def respond(update: Update, context: CallbackContext):
@@ -125,7 +118,6 @@ def respond(update: Update, context: CallbackContext):
         adding_child(update, context, text)
     else:
         next_task(update, context)
-
 
 
 def error(update, context):
