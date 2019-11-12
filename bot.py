@@ -8,7 +8,9 @@ Usage:
 import logging
 import bot_keyboards
 import secret_settings
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler)
 from telegram import Update
+from model import add_parent_to_db, add_child_to_db
 from telegram.ext import (CallbackContext)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -24,32 +26,18 @@ def get_info_from(key: str):
     return name, parent_id
 
 
-def login_parent(context, chat_id):
-    context.user_data['status'] = 'Parent'
-    context.user_data['children'] = {}
-    bot_users[chat_id] = context.user_data
-
-
-def login_child(context, name, parent_id, chat_id):
-    context.user_data['name'] = name
-    context.user_data['status'] = 'child'
-    context.user_data['parent_id'] = parent_id
-    context.user_data['tasks'] = []
-    bot_users[chat_id] = context.user_data
-    bot_users[int(parent_id)]['children'][name] = {chat_id, 'connected'}
-
-
 def start(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
     key = context.args
     if key:
         logger.info(f"> Start child chat #{chat_id}")
         name, parent_id = get_info_from(key[0])
-        login_child(context, name, parent_id, chat_id)
-        home_child(update, context)
+        add_child_to_db(context, name, parent_id, chat_id)
+        home_child(update, context, chat_id)
     else:
         logger.info(f"> Start parent chat #{chat_id}")
-        login_parent(context, chat_id)
+        add_parent_to_db(context, update, chat_id)
+        context.bot.send_message(chat_id=chat_id, text=f"Welcome! {update.message.from_user['first_name']}")
         add_child(update, context, chat_id)
 
 
@@ -62,20 +50,66 @@ def home_child(update: Update, context: CallbackContext, chat_id):
 
 
 def add_child(update, context, chat_id):
-    context.bot.send_message(chat_id=chat_id, text=f"Enter child's name:")
+    context.bot.send_message(chat_id=chat_id, text=f"Enter your child's name:")
 
 
-def adding_child(update, context):
+def adding_child(update, context, child_name):
     chat_id = update.effective_chat.id
-    child_name = update.message.text
     logger.info(f"> Adding {child_name} to parent #{chat_id}")
-    bot_users[int(chat_id)]['children'][child_name] = {}
+
+    #child_name_to_parent(chat_id,child_name)
     context.bot.send_message(chat_id=chat_id, text=f"Send your child this link to join this bot: "
                                                    f"\n https://t.me/teachild_bot?start={child_name}-{str(chat_id)}")
-    home_parent(update, context)
+    home_parent(update, chat_id, context)
+
+
+def respond(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    text = update.message.text
+    if text == 'Add child':
+        add_child(update, context, chat_id)
+    elif text == 'Assign task':
+        pass
+    elif text == 'Get report':
+        pass
+    elif text == 'Start Task':
+        pass
+    elif text == 'Show Tasks':
+        pass
+    else:
+        adding_child(update, context, text)
 
 
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
+
+def main():
+
+    # Create the Updater and pass it your bot's token.
+    updater = Updater(secret_settings.BOT_TOKEN, use_context=True)
+
+    # Get the dispatcher to register handlers
+    dispatcher = updater.dispatcher
+
+    # log all errors
+    dispatcher.add_error_handler(error)
+
+    start_handler = CommandHandler('start', start)
+    dispatcher.add_handler(start_handler)
+
+    help_handler = CommandHandler('help', help)
+    dispatcher.add_handler(help_handler)
+
+    echo_handler = MessageHandler(Filters.text, respond)
+    dispatcher.add_handler(echo_handler)
+
+    logger.info("* Start polling...")
+    updater.start_polling()  # Starts polling in a background thread.
+    updater.idle()  # Wait until Ctrl+C is pressed
+    logger.info("* Bye!")
+
+
+if __name__ == '__main__':
+    main()

@@ -1,8 +1,11 @@
-# YOUR BOT LOGIC/STORAGE/BACKEND FUNCTIONS HERE
-import os
 import random
-
 import dict_questions
+from pymongo.mongo_client import MongoClient
+
+client = MongoClient()
+db = client.get_database("Teachild")
+parent_collection = db.get_collection('Parent')
+child_collection = db.get_collection('Child')
 
 '''
 #0-39
@@ -26,3 +29,24 @@ def send_task(level) -> dict:
 
 def check_answer(name_img_q: str, answer) -> bool:
     return int(name_img_q.split('=')[1].split('.')[0]) == int(answer)
+
+
+def add_parent_to_db(context, update, chat_id):
+    p = {
+        'parent_id': chat_id,
+        'name': update.message.from_user['first_name'],
+        'children ids': [],  # a list of children id's
+        'children names': []
+    }
+
+    response = parent_collection.replace_one({'patent_id': chat_id}, p, upsert=True)
+
+
+def add_child_to_db(context, name, p_id, chat_id):
+    c = {
+        'child_id': chat_id,
+        'name': name,
+        'parent_id': p_id,
+        'tasks': {},  # a list of dictionaries
+    }
+    response = child_collection.replace_one({'child_id': chat_id}, c, upsert=True)
