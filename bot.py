@@ -9,9 +9,11 @@ import logging
 import bot_keyboards
 import re
 import secret_settings
+from io import BytesIO
+from PIL import Image
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler)
 from telegram import Update
-from model import add_parent_to_db, add_child_to_db, child_name_to_parent
+from model import add_parent_to_db, add_child_to_db, child_name_to_parent, is_parent, child_id_to_parent
 from telegram.ext import (CallbackContext)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -33,11 +35,12 @@ def start(update: Update, context: CallbackContext):
     if key:
         logger.info(f"> Start child chat #{chat_id}")
         name, parent_id = get_info_from(key[0])
-        add_child_to_db(context, name, parent_id, chat_id)
+        add_child_to_db(name, parent_id, chat_id)
+        child_id_to_parent(parent_id, chat_id)
         home_child(update, context, chat_id)
     else:
         logger.info(f"> Start parent chat #{chat_id}")
-        add_parent_to_db(context, update, chat_id)
+        add_parent_to_db(update, chat_id)
         context.bot.send_message(chat_id=chat_id, text=f"Welcome! {update.message.from_user['first_name']}")
         add_child(update, context, chat_id)
 
@@ -72,16 +75,38 @@ def assign_task(update: Update, context: CallbackContext):
     # context.bot.send_message(chat_id=child_id, text=f"Hi, you have a new assignment 😃")
 
 
-def CallbackQueryHandler_choose_child(update, context):
+def start_task_one(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    level = 0  # task list- rather the first one that's not completed
+    context.bot.send_message(chat_id=chat_id, text=f"You are solving Math - level {level}.\n Good luck!!!")
+    amount_questions = 7  # length of questions in that level
+    # get task
+    context.bot.send_photo(chat_id=chat_id, photo=open('screenshots/shopping-list-bot-1.png', 'rb'),
+                           caption=f"Question #1/{amount_questions}")
+    bot_keyboards.child_in_task_keyboard(update, chat_id, context)
+
+
+def next_task(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    current_ques = 2  # get current task + 1
+    amount_questions = 7  # length of questions in that level
+    # get task
+    context.bot.send_photo(chat_id=chat_id, photo=open('screenshots/shopping-list-bot-1.png', 'rb'),
+                           caption=f"Question #1/{amount_questions}")
+
+
+def callback_query_handler_choose_child(update, context):
     parent_id = update.effective_chat.id
-    child_id = update.callback_query.data
-    bot_keyboards.model.create_task_in_DB(child_id,parent_id)
-    bot_keyboards.choose_level_task(update,context)
+    # child_id = update.callback_query.data
+    context.user_data['choose_child'] = update.callback_query.data
+    # bot_keyboards.model.create_task_in_DB(child_id, parent_id)
+    bot_keyboards.choose_level_task(update, context)
 
 
-def CallbackQueryHandler_choose_level(update, context):
+def callback_query_handler_choose_level(update, context):
     child_level = update.callback_query.data
-    bot_keyboards.model.level_task_in_DB(child_level)
+    bot_keyboards.model.create_task_in_DB(context.user_data['choose_child'], child_level.replace('x', ''))
+
 
 def respond(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
@@ -93,11 +118,14 @@ def respond(update: Update, context: CallbackContext):
     elif text == 'Get report':
         pass
     elif text == 'Start Task':
-        pass
+        start_task_one(update, context)
     elif text == 'Show Tasks':
         pass
-    else:
+    elif is_parent(chat_id):
         adding_child(update, context, text)
+    else:
+        next_task(update, context)
+
 
 
 def error(update, context):
@@ -125,9 +153,9 @@ def main():
     echo_handler = MessageHandler(Filters.text, respond)
     dispatcher.add_handler(echo_handler)
 
-    dispatcher.add_handler(CallbackQueryHandler(CallbackQueryHandler_choose_child, pattern=re.compile(r'\d')))
+    dispatcher.add_handler(CallbackQueryHandler(callback_query_handler_choose_child, pattern=re.compile(r'\d')))
 
-    dispatcher.add_handler(CallbackQueryHandler(CallbackQueryHandler_choose_level, pattern=re.compile(r'x\d+')))
+    dispatcher.add_handler(CallbackQueryHandler(callback_query_handler_choose_level, pattern=re.compile(r'x\d+')))
 
     logger.info("* Start polling...")
     updater.start_polling()  # Starts polling in a background thread.

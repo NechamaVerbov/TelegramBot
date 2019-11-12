@@ -23,12 +23,12 @@ def main_child_keyboard(update, chat_id, context):
                               reply_markup=reply_markup)
 
 
-def choose_child_keyboard(update, chat_id, context):
+def child_in_task_keyboard(update, chat_id, context):
     menu_main = [[InlineKeyboardButton('Next')],
                  [InlineKeyboardButton('Done task')],
                  [InlineKeyboardButton('/help')]]
     reply_markup = ReplyKeyboardMarkup(menu_main)
-    update.message.reply_text(f".....bla bla bla ",
+    update.message.reply_text(f"Enter your answer or press one of the buttons below: ",
                               reply_markup=reply_markup)
 
 
