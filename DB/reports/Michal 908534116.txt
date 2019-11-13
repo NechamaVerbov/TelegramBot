@@ -1,5 +1,7 @@
-Michal report 13/11/2019 08:28:39
+Michal report 13/11/2019 10:57:28
 ------------------------------------------------------------------------
-date - 13/11/2019 08:26:42, level - 1, subject - math:
-Didn't start task
+date - 13/11/2019 10:55:11, level - 1, subject - math:
+Completed your task
+4 div 4 = 1  answer correctly
+0 m 1 = 0  answer correctly
 ------------------------------------------------------------------------

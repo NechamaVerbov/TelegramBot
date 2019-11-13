@@ -22,24 +22,24 @@ def send_gif_wellcome(update, context, chat_id):
 
 def send_stick_ans(context, chat_id, bool):
     if bool:
-        i = (random.randint(1, 12))
+        #i = (random.randint(1, 12))
         context.bot.send_animation(chat_id=chat_id,
-                                   animation=open(r'DB\gif\ans_good\\' + f'{i}.webp', 'rb'))
+                                   animation=open(r'DB\gif\ans_good\\' + f'{1}.webp', 'rb'), caption="GOOD JOB!")
     else:
-        i = (random.randint(1, 7))
+        #i = (random.randint(1, 7))
         context.bot.send_animation(chat_id=chat_id,
-                                   animation=open(r'DB\gif\ans_bad\\' + f'{i}.webp', 'rb'))
+                                   animation=open(r'DB\gif\ans_bad\\' + f'{1}.webp', 'rb'), caption="WRONG ANSWER!")
 
 
 def send_gif_end_task(context, chat_id):
-    i = (random.randint(1, 5))
+    #i = (random.randint(1, 5))
     context.bot.send_animation(chat_id=chat_id,
                                animation=open(r'DB\gif\finish_task_good\\' + f'{1}.gif', 'rb'),
-                               caption=f"Your completed your task!")
+                               caption=f"You completed the task!")
 
 
 def send_gif_start_task(context, chat_id):
-    i = (random.randint(1, 3))
+    #i = (random.randint(1, 3))
     context.bot.send_animation(chat_id=chat_id,
-                               animation=open(r'DB\gif\start\\' + f'{2}.gif', 'rb'),
+                               animation=open(r'DB\gif\start\\' + f'{1}.gif', 'rb'),
                                caption=f"Hi, you have a new assignment 😃")

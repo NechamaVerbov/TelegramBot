@@ -22,13 +22,6 @@ def main_child_keyboard(update, chat_id, context):
                               reply_markup=reply_markup)
 
 
-# def child_in_task_keyboard(update, chat_id, context):
-#     menu_main = [[KeyboardButton('/help')]]
-#     reply_markup = ReplyKeyboardMarkup(menu_main)
-#     update.message.reply_text(f"Enter your answer or press one of the buttons below: ",
-#                               reply_markup=reply_markup)
-
-
 def continue_task_keyboard(update):
     menu_main = [[KeyboardButton('Next')]]
     reply_markup = ReplyKeyboardMarkup(menu_main)
