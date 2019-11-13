@@ -3,7 +3,8 @@ First, a few callback functions are defined. Then, those functions are passed to
 the Dispatcher and registered at their respective places.
 Then, the bot is started.
 Usage:
-...
+Parent-child learning bot: The parent can advance his child's knowledge by assigning specific tasks and following the
+progress via reports
 """
 import logging
 import bot_keyboards
