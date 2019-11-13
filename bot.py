@@ -113,7 +113,7 @@ def next_task(update: Update, context: CallbackContext):
         ques_pic, status = get_question(chat_id, current_ques)
         context.bot.send_photo(chat_id=chat_id, photo=open(ques_pic, 'rb'),
                                caption=f"Question #{current_ques}/{NUMBER_Q_IN_TASK}")
-        bot_keyboards.child_in_task_keyboard(update, chat_id, context)
+        bot_keyboards.continue_task_keyboard(update)
 
 
 def callback_query_handler_choose_child(update, context):
@@ -125,7 +125,7 @@ def callback_query_handler_choose_level(update, context):
     chat_id = update.effective_chat.id
     child_level = update.callback_query.data
     bot_keyboards.model.create_task_in_db(chat_id, context.user_data['choose_child'], child_level.replace('x', ''))
-    context.bot.send_message(chat_id=chat_id, text="task send")
+    context.bot.send_message(chat_id=chat_id, text="Task sent")
     send_gif_start_task(context, int(context.user_data['choose_child']))
 
 

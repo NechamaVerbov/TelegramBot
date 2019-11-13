@@ -179,7 +179,8 @@ def get_report(chat_id, context, child_id):
         report_file.write(f"{child['name']} report {data_now_str}\n")
         report_file.write('------------------------------------------------------------------------\n')
         for task in child['tasks']:
-            report_file.write(f'date - {task["date"].strftime("%d/%m/%Y %H:%M:%S")}, level - {task["level"]}, subject - math:\n')
+            report_file.write(
+                f'date - {task["date"].strftime("%d/%m/%Y %H:%M:%S")}, level - {task["level"]}, subject - math:\n')
             if task["status"]:
                 report_file.write("Completed your task\n")
                 for key, value in task["question_dict"].items():

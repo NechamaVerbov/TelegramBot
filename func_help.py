@@ -34,12 +34,12 @@ def send_stick_ans(context, chat_id, bool):
 def send_gif_end_task(context, chat_id):
     i = (random.randint(1, 5))
     context.bot.send_animation(chat_id=chat_id,
-                               animation=open(r'DB\gif\finish_task_good\\' + f'{i}.gif', 'rb'),
+                               animation=open(r'DB\gif\finish_task_good\\' + f'{1}.gif', 'rb'),
                                caption=f"Your completed your task!")
 
 
 def send_gif_start_task(context, chat_id):
     i = (random.randint(1, 3))
     context.bot.send_animation(chat_id=chat_id,
-                               animation=open(r'DB\gif\start\\' + f'{i}.gif', 'rb'),
+                               animation=open(r'DB\gif\start\\' + f'{2}.gif', 'rb'),
                                caption=f"Hi, you have a new assignment 😃")

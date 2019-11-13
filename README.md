@@ -1,11 +1,12 @@
-# {YOUR BOT NAME HERE}
-<https://t.me/{BOT_ID}>
+# {Teachilde}
+<https://t.me/teachild_bot>
 
-{ONE LINE BOT DESCRIPTION HERE} 
+{Parent-child learning bot: The parent can advance his child's knowledge by assigning specific tasks and following the progress via reports } 
 
-* {Participant 1 Name}
-* {Participant 2 Name}
-* {Participant 3 Name}
+* {Nechama Verbov}
+* {Chedva Edry}
+* {Michal Ratner}
+* {Tirza Rubinstain}
 
 {OPTIONAL: MORE PROJECT INFO HERE}
 
@@ -17,7 +18,8 @@
 ### Prerequisites
 * Python 3.7
 * pipenv
-* {ADD MORE DEPENDENCIES HERE - FOR EXAMPLE MONGODB OR ANYTHING ELSE}
+* mongoDB
+
 
 ### Setup
 * Clone this repo from github
@@ -46,5 +48,6 @@ To run all test  use:
 ## Credits and References
 * [Telegram Docs](https://core.telegram.org/bots)
 * [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)
-* {ADD MORE REFERENCES TO LIBRARIES, APIS AND CODE SNIPPETS HERE}
+* [mongoDB Documentation] (https://www.mongodb.com/) 
+* [w3resource](https://www.w3resource.com/) 
 
