@@ -1,18 +1,27 @@
-# {Teachilde}
+# Teachilde
 <https://t.me/teachild_bot>
 
-{Parent-child learning bot: The parent can advance his child's knowledge by assigning specific tasks and following the progress via reports } 
+Parent-child learning bot: The parent can advance his child's knowledge by assigning specific tasks and following the progress via reports.
 
-* {Nechama Verbov}
-* {Chedva Edry}
-* {Michal Ratner}
-* {Tirza Rubinstain}
+* Nechama Verbov
+* Chedva Edry
+* Michal Ratner
+* Tirza Rubinstain
 
-{OPTIONAL: MORE PROJECT INFO HERE}
 
 ## Screenshots
 
-![SCREESHOT DECSRIPTION](screenshots/shopping-list-bot-1.png)
+![Start parent](screenshots/parent1.jpg)
+![Home parent](screenshots/parent2.jpg)
+![parent- assign task](screenshots/parent6.jpg)
+![parent- get report](screenshots/parent8.jpg)
+
+![Start student](screenshots/child1.jpg)
+![Home student](screenshots/child3.jpg)
+![student- start task](screenshots/child5.jpg)
+![parent- finished task](screenshots/child7.jpg)
+
+
 
 ## How to Run This Bot
 ### Prerequisites
@@ -22,12 +31,10 @@
 
 
 ### Setup
-* Clone this repo from github
-* Install dependencies: `pipenv install`
-* Get a BOT ID from the [botfather](https://telegram.me/BotFather).
-* Create a `secret_settings.py` file:
+* Clone this repo from github: https://github.com/Elevationacademy/xt-bareket-bot-hackathon-michal-tirza-chedva-nechama.git
+* Install dependencies: `pipenv install`, `install telegram`
+* Get a BOT ID from the [botfather]: <https://t.me/teachild_bot>
 
-        BOT_TOKEN = "your-bot-token-here"
 
 ### Run
 To run the bot use:
@@ -43,11 +50,15 @@ To run all test  use:
 
     pipenv run pytest
 
-(Or just `pytest` if running in a pipenv shell.)
 
 ## Credits and References
 * [Telegram Docs](https://core.telegram.org/bots)
 * [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)
-* [mongoDB Documentation] (https://www.mongodb.com/) 
-* [w3resource](https://www.w3resource.com/) 
+* [mongoDB Documentation] (https://www.mongodb.com/)
+* [w3resource](https://www.w3resource.com/)
+* [metro](https://forums.meteor.com/)
+* [Google]
 
+* Avigail wilk - help with DB
+* Elana Flesanthal - help with parsing
+* Tamar Apelbaum - help with gif's
