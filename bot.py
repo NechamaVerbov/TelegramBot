@@ -11,7 +11,9 @@ import re
 import secret_settings
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler)
 from telegram import Update
-from model import add_parent_to_db, add_child_to_db, child_name_to_parent, is_parent, child_id_to_parent
+from model import add_parent_to_db, add_child_to_db, child_name_to_parent, is_parent, child_id_to_parent, \
+    get_current_task, NUMBER_Q_IN_TASK, get_task_level, get_question, check_answer, set_task_start_to_true, \
+    get_current_ques, set_ques_status_to_true, set_current_question, ready_tasks
 from telegram.ext import (CallbackContext)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -69,22 +71,47 @@ def assign_task(update: Update, context: CallbackContext):
 
 def start_task_one(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
-    level = 0  # task list- rather the first one that's not completed
-    context.bot.send_message(chat_id=chat_id, text=f"You are solving Math - level {level}.\n Good luck!!!")
-    amount_questions = 7  # length of questions in that level
-    # get task
-    context.bot.send_photo(chat_id=chat_id, photo=open('screenshots/shopping-list-bot-1.png', 'rb'),
-                           caption=f"Question #1/{amount_questions}")
-    bot_keyboards.child_in_task_keyboard(update, chat_id, context)
+    if not ready_tasks(chat_id):
+        context.bot.send_message(chat_id=chat_id, text=f"No task set for you yet!")
+    else:
+        logger.info(f"> child chat #{chat_id} starting task 1")
+        level = get_task_level(chat_id)
+        set_task_start_to_true(chat_id)
+        context.bot.send_message(chat_id=chat_id, text=f"You are solving Math - level {level}.\n Good luck!!!")
+        amount_questions = NUMBER_Q_IN_TASK
+        ques_pic, status = get_question(chat_id, 1)
+        context.bot.send_photo(chat_id=chat_id, photo=open(ques_pic, 'rb'),
+                               caption=f"Question #1/{amount_questions}")
+        bot_keyboards.child_in_task_keyboard(update, chat_id, context)
+
+
+def check_and_set_next_ques(update: Update, context: CallbackContext, answer):
+    chat_id = update.effective_chat.id
+    current_ques = get_current_ques(chat_id)
+    ques_pic, status = get_question(chat_id, current_ques)
+    is_correct = check_answer(ques_pic, answer)
+    if is_correct:
+        set_ques_status_to_true(chat_id, current_ques)
+    set_current_question(chat_id, current_ques + 1)
+    next_task(update, context)
 
 
 def next_task(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
-    current_ques = 2  # get current task + 1
-    amount_questions = 7  # length of questions in that level
-    # get task
-    context.bot.send_photo(chat_id=chat_id, photo=open('screenshots/shopping-list-bot-1.png', 'rb'),
-                           caption=f"Question #1/{amount_questions}")
+    current_ques = get_current_ques(chat_id)
+    if current_ques == NUMBER_Q_IN_TASK - 1:
+        context.bot.send_message(chat_id=chat_id, text=f"Your completed your task!")
+        set_current_question(chat_id, 0)
+        home_child(update, context, chat_id)
+    else:
+        level = get_task_level(chat_id)
+        set_task_start_to_true(chat_id)
+        context.bot.send_message(chat_id=chat_id, text=f"You are solving Math - level {level}.\n Good luck!!!")
+        amount_questions = NUMBER_Q_IN_TASK
+        ques_pic, status = get_question(chat_id, current_ques)
+        context.bot.send_photo(chat_id=chat_id, photo=open(ques_pic, 'rb'),
+                               caption=f"Question #{current_ques + 1}/{amount_questions}")
+        bot_keyboards.child_in_task_keyboard(update, chat_id, context)
 
 
 def callback_query_handler_choose_child(update, context):
@@ -117,7 +144,7 @@ def respond(update: Update, context: CallbackContext):
     elif is_parent(chat_id):
         adding_child(update, context, text)
     else:
-        next_task(update, context)
+        check_and_set_next_ques(update, context, text)
 
 
 def error(update, context):

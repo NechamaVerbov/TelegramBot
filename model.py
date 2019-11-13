@@ -23,13 +23,17 @@ NUMBER_Q_IN_TASK = 10
 
 
 def make_task_for_level(dictt: dict) -> dict:
-    return dict(zip(range(NUMBER_Q_IN_TASK), random.choices(dictt, k=NUMBER_Q_IN_TASK)))
+    l=[]
+    for i in range(1,NUMBER_Q_IN_TASK+1):
+        l.append(str(i))
+
+    return dict(zip(l, random.choices(dictt, k=NUMBER_Q_IN_TASK)))
 
 
 def send_task(level) -> dict:
-    if int(level) == 1:
+    if int(level) == 0:
         return make_task_for_level(dict_questions.dict_questions_math_level1)
-    if int(level) == 2:
+    if int(level) == 1:
         return make_task_for_level(dict_questions.dict_questions_math_level2)
 
 
@@ -61,17 +65,17 @@ def add_child_to_db(name, p_id, chat_id):
 
 def add_task_to_db(c_id, p_id, level, dictionary):
     t = {
-        'child_id': c_id,
+        'child_id': int(c_id),
         'parent_id': p_id,
-        'level': level,
+        'level': int(level),
         'status': False,
         'date': datetime.now(),
-        'task_dict': dictionary,
-        'data_time_start': datetime.datetime(),
-        'data_time_finishing': datetime.datetime(),
-        'current_task': 0
+        'question_dict': dictionary,
+        'start': False,
+        'current_question': 1
     }
-    response = task_collection.insert_one(t)
+    #response = task_collection.insert_one(t)
+    add_task_to_child(int(c_id), t)
 
 
 def get_date_task_send(task_id):
@@ -86,6 +90,10 @@ def child_name_to_parent(chat_id, child_name):
 
 def child_id_to_parent(parent_id, child_id):
     parent_collection.update({'parent_id': int(parent_id)}, {'$push': {'children_ids': child_id}})
+
+
+def add_task_to_child(chat_id, task):
+    child_collection.update({'child_id': chat_id}, {'$push': {'tasks': task}})
 
 
 def get_list_child_id(chat_id_parent):
@@ -104,10 +112,43 @@ def get_current_task(child_id):
     return child_collection.find({'child_id': child_id})[0]['current_task']
 
 
+def get_task_level(child_id):
+    current_task = get_current_task(child_id)
+    return child_collection.find({'child_id': child_id})[0]['tasks'][current_task]['level']
+
+
+def get_question(child_id, num_ques):
+    current_task = get_current_task(child_id)
+    return child_collection.find({'child_id': child_id})[0]['tasks'][current_task]['question_dict'][str(num_ques)]  #list with pic and status
+
+
+def get_current_ques(child_id):
+    return child_collection.find({'child_id': child_id})[0]['tasks'][get_current_task(child_id)]['current_question']
+
+
 def create_task_in_db(parent_id, child_id, level):
     dictionary = send_task(level)
     add_task_to_db(child_id, parent_id, level, dictionary)
-    print(child_id, level)
+
+
+def set_task_start_to_true(child_id):
+    current_task = get_current_task(child_id)
+    child_collection.update_one({'child_id': child_id}, {'$set': {'tasks'[current_task]: {'start': True}}})
+
+
+def set_current_question(chat_id, num):
+   # child_collection.update_one({'child_id': chat_id}, {'$set': {'tasks': {current_task: {'start': True}}}})
+    child_collection.find({'child_id': chat_id},
+                          {'$set': {'tasks' [get_current_task(chat_id)]['current_question']: num}})
+
+
+def ready_tasks(chat_id):
+    return len(child_collection.find({'child_id': chat_id})[0]['tasks'])  #add check: if all status are true(no tasks undone)
+
+
+def set_ques_status_to_true(chat_id, current_ques):
+    child_collection.find({'child_id': chat_id}, {'$set': {'tasks'[get_current_task(chat_id)]['question_dict'][
+                                                                current_ques]: True}})
 
 
 def get_report(parent_id, child_id):
