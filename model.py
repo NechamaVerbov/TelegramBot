@@ -19,12 +19,12 @@ dict_questions.dict_questions_math_level1
 #0-29
 dict_questions.dict_questions_math_level2
 '''
-NUMBER_Q_IN_TASK = 10
+NUMBER_Q_IN_TASK = 2
 
 
 def make_task_for_level(dictt: dict) -> dict:
-    l=[]
-    for i in range(1,NUMBER_Q_IN_TASK+1):
+    l = []
+    for i in range(1, NUMBER_Q_IN_TASK + 1):
         l.append(str(i))
 
     return dict(zip(l, random.choices(dictt, k=NUMBER_Q_IN_TASK)))
@@ -74,7 +74,7 @@ def add_task_to_db(c_id, p_id, level, dictionary):
         'start': False,
         'current_question': 1
     }
-    #response = task_collection.insert_one(t)
+    # response = task_collection.insert_one(t)
     add_task_to_child(int(c_id), t)
 
 
@@ -119,7 +119,8 @@ def get_task_level(child_id):
 
 def get_question(child_id, num_ques):
     current_task = get_current_task(child_id)
-    return child_collection.find({'child_id': child_id})[0]['tasks'][current_task]['question_dict'][str(num_ques)]  #list with pic and status
+    return child_collection.find({'child_id': child_id})[0]['tasks'][current_task]['question_dict'][
+        str(num_ques)]  # list with pic and status
 
 
 def get_current_ques(child_id):
@@ -151,7 +152,8 @@ def set_task_status_true(chat_id):
 
 
 def ready_tasks(chat_id):
-    return len(child_collection.find({'child_id': chat_id})[0]['tasks'])  #add check: if all status are true(no tasks undone)
+    return len(
+        child_collection.find({'child_id': chat_id})[0]['tasks'])  # add check: if all status are true(no tasks undone)
 
 
 def set_ques_status_to_true(chat_id, current_ques):
@@ -160,10 +162,37 @@ def set_ques_status_to_true(chat_id, current_ques):
     child_collection.replace_one({'child_id': chat_id}, temp, upsert=True)
 
 
-def get_report(parent_id, child_id):
-    pass
-
-
 def get_num_of_level():
-    # כמה רמות יש לי
     return int(2)
+
+
+def name_task(name_image):
+    return ' '.join(name_image.split(' ')[2:7])
+
+
+def get_report(chat_id, context, child_id):
+    child = child_collection.find({'child_id': int(child_id)})[0]
+    data_now = datetime.now()
+    data_now_str = data_now.strftime("%d/%m/%Y %H:%M:%S")
+    name_file = r'DB\reports\\' + f"{child['name']} {child['child_id']}.txt"
+    with open(name_file, 'w') as report_file:
+        report_file.write(f"{child['name']} report {data_now_str}\n")
+        report_file.write('------------------------------------------------------------------------\n')
+        for task in child['tasks']:
+            report_file.write(f'date - {task["date"].strftime("%d/%m/%Y %H:%M:%S")}, level - {task["level"]}, subject - math:\n')
+            if task["status"]:
+                report_file.write("Completed your task\n")
+                for key, value in task["question_dict"].items():
+                    answer_status = name_task((value[0]))
+                    if value[1]:
+                        answer_status += '  answer correctly\n'
+                    else:
+                        answer_status += '  answer wrongly\n'
+                    report_file.write(answer_status)
+            else:
+                if task["start"]:
+                    report_file.write("Didn't finish task\n")
+                else:
+                    report_file.write("Didn't start task\n")
+            report_file.write('------------------------------------------------------------------------\n')
+    context.bot.send_document(chat_id=chat_id, document=open(name_file, 'rb'))

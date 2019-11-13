@@ -13,10 +13,11 @@ def build_menu(buttons,
     return menu
 
 
-def send_gif_wellcome(context, chat_id):
+def send_gif_wellcome(update, context, chat_id):
     i = (random.randint(1, 2))
     context.bot.send_animation(chat_id=chat_id,
-                               animation=open(r'DB\gif\wellcome\\' + f'{i}.gif', 'rb'))
+                               animation=open(r'DB\gif\wellcome\\' + f'{i}.gif', 'rb'),
+                               caption=f"Welcome! {update.message.from_user['first_name']}")
 
 
 def send_stick_ans(context, chat_id, bool):
@@ -33,10 +34,12 @@ def send_stick_ans(context, chat_id, bool):
 def send_gif_end_task(context, chat_id):
     i = (random.randint(1, 5))
     context.bot.send_animation(chat_id=chat_id,
-                               animation=open(r'DB\gif\finish_task_good\\' + f'{i}.gif', 'rb'))
+                               animation=open(r'DB\gif\finish_task_good\\' + f'{i}.gif', 'rb'),
+                               caption=f"Your completed your task!")
 
 
 def send_gif_start_task(context, chat_id):
     i = (random.randint(1, 3))
     context.bot.send_animation(chat_id=chat_id,
-                               animation=open(r'DB\gif\start\\' + f'{i}.gif', 'rb'))
+                               animation=open(r'DB\gif\start\\' + f'{i}.gif', 'rb'),
+                               caption=f"Hi, you have a new assignment 😃")
