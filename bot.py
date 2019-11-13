@@ -13,7 +13,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, Conv
 from telegram import Update
 from model import add_parent_to_db, add_child_to_db, child_name_to_parent, is_parent, child_id_to_parent, \
     get_current_task, NUMBER_Q_IN_TASK, get_task_level, get_question, check_answer, set_task_start_to_true, \
-    get_current_ques, set_ques_status_to_true, set_current_question, ready_tasks
+    get_current_ques, set_ques_status_to_true, set_current_question, ready_tasks, set_task_status_true
 from telegram.ext import (CallbackContext)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -101,21 +101,18 @@ def next_task(update: Update, context: CallbackContext):
     current_ques = get_current_ques(chat_id)
     if current_ques == NUMBER_Q_IN_TASK - 1:
         context.bot.send_message(chat_id=chat_id, text=f"Your completed your task!")
+        set_task_status_true(chat_id)
         set_current_question(chat_id, 0)
         home_child(update, context, chat_id)
     else:
-        level = get_task_level(chat_id)
         set_task_start_to_true(chat_id)
-        context.bot.send_message(chat_id=chat_id, text=f"You are solving Math - level {level}.\n Good luck!!!")
-        amount_questions = NUMBER_Q_IN_TASK
         ques_pic, status = get_question(chat_id, current_ques)
         context.bot.send_photo(chat_id=chat_id, photo=open(ques_pic, 'rb'),
-                               caption=f"Question #{current_ques + 1}/{amount_questions}")
+                               caption=f"Question #{current_ques}/{NUMBER_Q_IN_TASK}")
         bot_keyboards.child_in_task_keyboard(update, chat_id, context)
 
 
 def callback_query_handler_choose_child(update, context):
-    parent_id = update.effective_chat.id
     context.user_data['choose_child'] = update.callback_query.data
     bot_keyboards.choose_level_task(update, context)
 
@@ -141,6 +138,8 @@ def respond(update: Update, context: CallbackContext):
         start_task_one(update, context)
     elif text == 'Show Tasks':
         pass
+    elif text == 'Next':
+        check_and_set_next_ques(update, context, text)
     elif is_parent(chat_id):
         adding_child(update, context, text)
     else:

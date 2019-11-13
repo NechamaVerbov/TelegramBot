@@ -133,13 +133,21 @@ def create_task_in_db(parent_id, child_id, level):
 
 def set_task_start_to_true(child_id):
     current_task = get_current_task(child_id)
-    child_collection.update_one({'child_id': child_id}, {'$set': {'tasks'[current_task]: {'start': True}}})
+    temp = list(child_collection.find({'child_id': child_id}))[0]
+    temp['tasks'][current_task]['start'] = True
+    child_collection.replace_one({'child_id': child_id}, temp, upsert=True)
 
 
 def set_current_question(chat_id, num):
-   # child_collection.update_one({'child_id': chat_id}, {'$set': {'tasks': {current_task: {'start': True}}}})
-    child_collection.find({'child_id': chat_id},
-                          {'$set': {'tasks' [get_current_task(chat_id)]['current_question']: num}})
+    temp = list(child_collection.find({'child_id': chat_id}))[0]
+    temp['tasks'][get_current_task(chat_id)]['current_question'] = num
+    child_collection.replace_one({'child_id': chat_id}, temp, upsert=True)
+
+
+def set_task_status_true(chat_id):
+    temp = list(child_collection.find({'child_id': chat_id}))[0]
+    temp['tasks'][get_current_task(chat_id)]['status'] = True
+    child_collection.replace_one({'child_id': chat_id}, temp, upsert=True)
 
 
 def ready_tasks(chat_id):
@@ -147,8 +155,9 @@ def ready_tasks(chat_id):
 
 
 def set_ques_status_to_true(chat_id, current_ques):
-    child_collection.find({'child_id': chat_id}, {'$set': {'tasks'[get_current_task(chat_id)]['question_dict'][
-                                                                current_ques]: True}})
+    temp = list(child_collection.find({'child_id': chat_id}))[0]
+    temp['tasks'][get_current_task(chat_id)]['question_dict'][str(current_ques)][1] = True
+    child_collection.replace_one({'child_id': chat_id}, temp, upsert=True)
 
 
 def get_report(parent_id, child_id):
