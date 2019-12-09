@@ -11,7 +11,7 @@ Parent-child learning bot: The parent can advance his child's knowledge by assig
 
 #### Screenshots
 
-![Start parent](screenshots/parent1.jpg)
+![Start parent](screenshots/parent1.jpg=200x300)
 ![Home parent](screenshots/parent2.jpg)
 ![parent- assign task](screenshots/parent6.jpg)
 ![parent- get report](screenshots/parent8.jpg)
