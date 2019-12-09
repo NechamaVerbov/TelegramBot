@@ -1,4 +1,4 @@
-# Teachilde
+# Teachild
 <https://t.me/teachild_bot>
 
 Parent-child learning bot: The parent can advance his child's knowledge by assigning specific tasks and following the progress via reports.
@@ -9,7 +9,7 @@ Parent-child learning bot: The parent can advance his child's knowledge by assig
 * Tirza Rubinstain
 
 
-## Screenshots
+#### Screenshots
 
 ![Start parent](screenshots/parent1.jpg)
 ![Home parent](screenshots/parent2.jpg)
